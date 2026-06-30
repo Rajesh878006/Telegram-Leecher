@@ -1,7 +1,7 @@
 # copyright 2024 © Xron Trix | https://github.com/Xrontrix10
 
 
-import logging, os
+import logging, os, requests
 from pyrogram import filters
 from datetime import datetime
 from asyncio import sleep, get_event_loop
@@ -18,7 +18,73 @@ src_request_msg = None
 
 @colab_bot.on_message(filters.command("start") & filters.private)
 async def start(client, message):
+    global BOT, MSG
     await message.delete()
+    
+    # চেক করা হচ্ছে কোনো টোকেন আছে কি না (/start YOUR_TOKEN)
+    if len(message.command) > 1:
+        token = message.command[1]
+        status_msg = await message.reply_text("🔄 **টোকেন ভেরিফাই করা হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...**")
+        
+        # আপনার PHP API URL পাথ অনুযায়ী রিকোয়েস্ট পাঠানো
+        api_url = f"https://gdmax.xyz/download/telegram.php/{token}"
+        
+        try:
+            response = requests.get(api_url).json()
+            
+            if response.get('status') == 'success':
+                drive_id = response.get('drive_id')
+                file_name = response.get('file_name')
+                
+                await status_msg.edit_text(f"✅ **ফাইল পাওয়া গেছে:** `{file_name}`\n📥 **ডাউনলোডিং এবং টেলিগ্রামে আপলোড শুরু হচ্ছে...**")
+                await sleep(2)
+                await status_msg.delete()
+
+                # বটের মোড এবং অপশন সেটআপ করা (Leech Mode)
+                BOT.Mode.mode = "leech"
+                BOT.Mode.ytdl = False
+                BOT.Mode.type = "normal"  # আপনি চাইলে ডিফল্ট zip বা unzip করতে পারেন
+                
+                # গুগল ড্রাইভের লিঙ্ক জেনারেট করা বা সরাসরি সোর্স হিসেবে পাস করা
+                # যেহেতু drive_id আছে, তাই গুগল ড্রাইভের ফুল ডাউনলোড লিঙ্ক তৈরি করা হচ্ছে
+                gdrive_url = f"https://drive.google.com/open?id={drive_id}"
+                BOT.SOURCE = [gdrive_url]
+                BOT.Options.custom_name = file_name
+                
+                # টাস্ক বা প্রসেস স্টার্ট করা
+                MSG.status_msg = await colab_bot.send_message(
+                    chat_id=OWNER,
+                    text="#STARTING_TASK\n\n**Starting your task in a few Seconds...🦐**",
+                    reply_markup=InlineKeyboardMarkup(
+                        [
+                            [InlineKeyboardButton("Cancel ❌", callback_data="cancel")],
+                        ]
+                    ),
+                )
+                
+                BOT.State.task_going = True
+                BOT.State.started = False
+                BotTimes.start_time = datetime.now()
+                event_loop = get_event_loop()
+                BOT.TASK = event_loop.create_task(taskScheduler())  # type: ignore
+                await BOT.TASK
+                BOT.State.task_going = False
+                return
+                
+            else:
+                await status_msg.edit_text("❌ **ভুল বা মেয়াদোত্তীর্ণ টোকেন! দয়া করে ওয়েবসাইট থেকে আবার চেষ্টা করুন।**")
+                await sleep(5)
+                await status_msg.delete()
+                return
+                
+        except Exception as e:
+            logging.error(f"API Error: {str(e)}")
+            await status_msg.edit_text("⚠️ **সার্ভারে সমস্যা হচ্ছে (API Error)। পরে আবার চেষ্টা করুন।**")
+            await sleep(5)
+            await status_msg.delete()
+            return
+
+    # যদি সাধারণ /start দেয় (টোকেন ছাড়া), তবে এই মেসেজটি শো করবে
     text = "**Hey There, 👋🏼 It's Colab Leecher**\n\n◲ I am a Powerful File Transloading Bot 🚀\n◲ I can Transfer Files To Telegram or Your Google Drive From Various Sources 🦐"
     keyboard = InlineKeyboardMarkup(
         [
