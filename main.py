@@ -9,11 +9,12 @@
 
 # @markdown <br>
 
-API_ID = 0  # @param {type: "integer"}
-API_HASH = ""  # @param {type: "string"}
-BOT_TOKEN = ""  # @param {type: "string"}
-USER_ID = 0  # @param {type: "integer"}
-DUMP_ID = 0  # @param {type: "integer"}
+# আপনার দেওয়া তথ্যগুলো এখানে সরাসরি বসিয়ে দেওয়া হয়েছে
+API_ID = 30869605  # @param {type: "integer"}
+API_HASH = "9e6f1d1403936225538e20ddabe749f2"  # @param {type: "string"}
+BOT_TOKEN = "8337412189:AAFTjD1IzHlTcNxrX05FIOcQlUbEaee5aQs"  # @param {type: "string"}
+USER_ID = 5449683143  # @param {type: "integer"}
+DUMP_ID = -1003604032906  # @param {type: "integer"}
 
 
 import subprocess, time, json, shutil, os
@@ -70,6 +71,10 @@ proc = subprocess.run(cmd, shell=True)
 cmd = "apt update && apt install ffmpeg aria2"
 proc = subprocess.run(cmd, shell=True)
 cmd = "pip3 install -r /content/Telegram-Leecher/requirements.txt"
+proc = subprocess.run(cmd, shell=True)
+
+# আপনার এপিআই থেকে ডেটা নেওয়ার জন্য রিকোয়েস্ট মডিউল ইনস্টল করা হচ্ছে
+cmd = "pip3 install requests"
 proc = subprocess.run(cmd, shell=True)
 
 credentials = {
