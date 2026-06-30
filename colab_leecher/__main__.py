@@ -36,7 +36,7 @@ async def start(client, message):
                 drive_id = response.get('drive_id')
                 file_name = response.get('file_name')
                 
-                await status_msg.edit_text(f"✅ **ফাইল পাওয়া গেছে:** `{file_name}`\n📥 **ডাউনলোডিং এবং টেলিগ্রামে আপলোড শুরু হচ্ছে...**")
+                await status_msg.edit_text(f"✅ **فাইল পাওয়া গেছে:** `{file_name}`\n📥 **ডাউনলোডিং এবং টেলিগ্রামে আপলোড শুরু হচ্ছে...**")
                 await sleep(2)
                 await status_msg.delete()
 
